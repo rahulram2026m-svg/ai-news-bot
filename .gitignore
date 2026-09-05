@@ -1,0 +1,11 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Local editor/OS files
+.vscode/
+.DS_Store
+
+# NOTE: sent_articles.json ko jaan-boojh kar track kiya jaa raha hai
+# (dedup history), isliye ise .gitignore me mat daalna - GitHub Actions
+# isi file ko commit karke duplicate-tracking maintain karta hai.

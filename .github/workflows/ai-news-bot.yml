@@ -1,0 +1,44 @@
+name: AI News Telegram Bot
+
+on:
+  schedule:
+    # Har 15 minute chalega (UTC time, IST se 5:30 ghante peeche)
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}   # Manually bhi "Run workflow" button se chala sakte ho
+
+# Script ko repo me file (sent_articles.json) update karke commit karne
+# ki permission chahiye
+permissions:
+  contents: write
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repo checkout karo
+        uses: actions/checkout@v4
+
+      - name: Python setup karo
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Dependencies install karo
+        run: pip install feedparser requests
+
+      - name: Bot chalao
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          LLM_PROVIDER: "groq"
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python ai_news_telegram_bot.py
+
+      - name: sent_articles.json ko repo me save karo (duplicate tracking)
+        run: |
+          git config user.name "AI News Bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add sent_articles.json || true
+          git diff --cached --quiet || git commit -m "Update sent articles history [skip ci]"
+          git push || true
